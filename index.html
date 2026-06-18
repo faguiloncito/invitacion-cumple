@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Estás Invitado!</title>
+    <!-- Importación de Fuente Elegante -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Vinculación del archivo CSS externo -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Elementos decorativos de fondo -->
+    <div class="circle circle-1"></div>
+    <div class="circle circle-2"></div>
+
+    <!-- Contenedor Principal -->
+    <div class="card">
+        
+        <!-- SECCIÓN 1: Detalles del Evento -->
+        <div class="event-details">
+            <h1>¡Mi Cumpleaños!</h1>
+            
+            <!-- Texto Personalizable -->
+            <p class="custom-text">
+                Te quiero invitar a mi cumpleaños, va a ser una reservación de canchita de fulbo
+            </p>
+            
+            <!-- Fecha y Hora -->
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="icon">📅</span>
+                    <span class="info-title">Fecha</span>
+                    <span class="info-desc">Sábado, 11 de Julio</span>
+                </div>
+                <div class="info-item">
+                    <span class="icon">⏰</span>
+                    <span class="info-title">Hora</span>
+                    <span class="info-desc">Pendiente hrs</span>
+                </div>
+            </div>
+
+            <!-- Ubicación y Google Maps -->
+            <div class="location-section">
+                <p class="location-address">📍 <strong>Lugar:</strong> Nou Camp, 7ma Av, Ciudad de Guatemala</p>
+                <div class="map-container">
+                    <!-- Puedes reemplazar el enlace del 'src' por el código de inserción de tu ubicación real de Google Maps -->
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3860.6482291424327!2d-90.53377232628567!3d14.619104085869482!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8589a1843ceccb93%3A0xb0726f4afe85a7a6!2sNou%20Camp!5e0!3m2!1ses!2sgt!4v1781563574503!5m2!1ses!2sgt" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe >
+                </div>
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- SECCIÓN 2: Formulario / Encuesta de Asistencia -->
+        <form id="rsvpForm">
+            <p class="subtitle">Por favor, confirma tu asistencia respondiendo a esta breve encuesta.</p>
+
+            <!-- Campo: Nombre -->
+            <div class="form-group">
+                <label for="guestName">Tu Nombre Completo</label>
+                <input type="text" id="guestName" placeholder="Ej. Juan Pérez" required autocomplete="off">
+            </div>
+
+            <!-- Campo: Asistencia -->
+            <div class="form-group">
+                <label>¿Vas a asistir?</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="attendance" value="si" required> ¡Sí, ahí estaré! 🎉
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="attendance" value="no"> No podré ir 😔
+                    </label>
+                </div>
+            </div>
+
+            <!-- Botón -->
+            <button type="submit" class="btn-submit">Enviar Respuesta</button>
+        </form>
+
+        <!-- Mensaje de éxito (Oculto al inicio) -->
+        <div id="thankYou" class="thank-you-message hidden">
+            <h2>¡Gracias por responder!</h2>
+            <p id="confirmationText"></p>
+        </div>
+    </div>
+
+    <!-- Lógica Interactiva Básica -->
+    <script>
+        document.getElementById('rsvpForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Evita que la página se recargue
+            
+            const name = document.getElementById('guestName').value;
+            const attendance = document.querySelector('input[name="attendance"]:checked').value;
+            
+            const form = document.getElementById('rsvpForm');
+            const thankYouBox = document.getElementById('thankYou');
+            const confirmationText = document.getElementById('confirmationText');
+            
+            // Ocultar formulario
+            form.classList.add('hidden');
+            thankYouBox.classList.remove('hidden');
+            
+            // Personalizar el mensaje final según la respuesta
+            if(attendance === 'si') {
+                confirmationText.innerHTML = `¡Genial, <strong>${name}</strong>! Nos vemos pronto para celebrar en grande. 🥳✨`;
+            } else {
+                confirmationText.innerHTML = `Lamentamos que no puedas venir, <strong>${name}</strong>. ¡Te extrañaremos en la fiesta! 🍰`;
+            }
+        });
+    </script>
+    <script type="module">
+        // 1. Importar los módulos necesarios de Firebase desde la CDN
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // 2. CONFIGURACIÓN DE TU FIREBASE (Reemplaza estos datos con los tuyos)
+        const firebaseConfig = {
+        apiKey: "AIzaSyAmdmYOMGLRJTLfo2PyIZ4t88J0mbCSCAo",
+        authDomain: "encuesta-birthday.firebaseapp.com",
+        projectId: "encuesta-birthday",
+        storageBucket: "encuesta-birthday.firebasestorage.app",
+        messagingSenderId: "1043924473238",
+        appId: "1:1043924473238:web:8a10a1bad111d4830e39b7",
+        measurementId: "G-LBG0YRPNSY"
+        };
+
+        // 3. Inicializar Firebase y la Base de Datos
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 4. Escuchar el envío del formulario
+        document.getElementById('rsvpForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Evita que la página se recargue
+            
+            const name = document.getElementById('guestName').value;
+            const attendance = document.querySelector('input[name="attendance"]:checked').value;
+            
+            const form = document.getElementById('rsvpForm');
+            const thankYouBox = document.getElementById('thankYou');
+            const confirmationText = document.getElementById('confirmationText');
+            
+            // Deshabilitar el botón temporalmente para evitar doble clic mientras se guarda
+            const btnSubmit = form.querySelector('.btn-submit');
+            if(btnSubmit) btnSubmit.disabled = true;
+
+            try {
+                // 5. ENVIAR A FIREBASE: Guardamos en una colección llamada 'invitados'
+                await addDoc(collection(db, "invitados"), {
+                    nombre: name,
+                    asistencia: attendance,
+                    fechaRegistro: new Date()
+                });
+
+                // Ocultar formulario y mostrar agradecimiento si todo sale bien
+                form.classList.add('hidden');
+                thankYouBox.classList.remove('hidden');
+                
+                // Personalizar el mensaje final según la respuesta
+                if(attendance === 'si') {
+                    confirmationText.innerHTML = `¡Genial, <strong>${name}</strong>! Nos vemos pronto para celebrar en grande. 🥳✨`;
+                } else {
+                    confirmationText.innerHTML = `Lamentamos que no puedas venir, <strong>${name}</strong>. ¡Te extrañaremos en la fiesta! 🍰`;
+                }
+
+            } catch (error) {
+                console.error("Error al guardar en Firebase: ", error);
+                alert("Hubo un pequeño problema al guardar tu respuesta. Por favor, intenta de nuevo.");
+                if(btnSubmit) btnSubmit.disabled = false; // Reactivar botón si falla
+            }
+        });
+    </script>
+</body>
+</html>

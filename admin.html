@@ -81,21 +81,31 @@
             }
         }
 
+        // Función definitiva para separar columnas y reconocer caracteres especiales (tildes/ñ)
         function exportarACSV(datos) {
+            // 1. Definimos los encabezados separados por un punto y coma (;)
             let contenido = "Nombre Completo;Estado asistencia\n";
 
+            // 2. Recorremos los datos para agregarlos fila por fila hacia abajo
             datos.forEach((invitado) => {
                 let respuestaText = invitado.asistencia === 'si' ? "Sí" : "No";
+                
+                // Limpiamos cualquier punto y coma accidental que arruine las celdas
                 let nombreLimpio = invitado.nombre.replace(/;/g, " ");
 
+                // Estructura limpia hacia abajo
                 contenido += `${nombreLimpio};${respuestaText}\n`;
             });
+
+            // 3. TRUCO DE COMPATIBILIDAD AVANZADA PARA EXCEL (Conversión a UTF-16LE)
+            // Esto fuerza a Excel a reconocer perfectamente las tildes, la 'ñ' y las columnas separadas
             const buffer = new ArrayBuffer(contenido.length * 2);
             const view = new DataView(buffer);
             for (let i = 0; i < contenido.length; i++) {
                 view.setUint16(i * 2, contenido.charCodeAt(i), true); // true = Little Endian
             }
 
+            // 4. Crear el archivo con el marcador de orden de bytes (BOM) adecuado para Excel
             const blob = new Blob([new Uint8Array([0xFF, 0xFE]), buffer], { type: 'text/csv;charset=utf-16le;' });
             const link = document.createElement("a");
             
